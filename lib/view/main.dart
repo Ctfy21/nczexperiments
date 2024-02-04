@@ -108,8 +108,11 @@ class DetailScreen extends StatelessWidget {
                     itemCount: state.experiments.length,
                     itemBuilder: (context, index) {
                       return Card(
-                        child: ListTile(
-                          title: Text(state.experiments[index].title, textAlign: TextAlign.center, style: const TextStyle(fontWeight:  FontWeight.w500)),
+                        child: Center(
+                          child: ListTile(
+                            title: Text(state.experiments[index].title, style: const TextStyle(fontWeight:  FontWeight.w500)),
+                            subtitle: Text('Время начала эксперимента - ${state.experiments[index].startTime.day}.${state.experiments[index].startTime.month}.${state.experiments[index].startTime.year}'),
+                          ),
                         ),
                       );
                     },
@@ -118,31 +121,6 @@ class DetailScreen extends StatelessWidget {
                 else{
                   return const Center(child: Text("Неизвестная ошибка, пожалуйста напишите сообщение администратору."));
                 }
-
-              // if(state is ExperimentsInitial){
-              //   return const Center(child: CircularProgressIndicator());                
-              // }
-              // if(state is ExperimentsLoading){
-              //   return const Center(child: CircularProgressIndicator());
-              // }
-              // if(state is ExperimentsError){
-              //   (errorMessage) => Center(child: Text(errorMessage));
-              // }
-              // if(state is ExperimentsSuccess){
-              //   (experiments){
-              //     ListView.builder(
-              //       itemCount: experiments.length,
-              //       itemBuilder: (context, index){
-              //         return ListTile(
-              //           title: Text(experiments[index].title),
-              //         );
-              //       },
-              //     );
-              //   };
-              // }
-              // else{
-              //   return const Center(child: CircularProgressIndicator());
-              // }
             },
           ),
         ),

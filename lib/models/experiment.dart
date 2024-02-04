@@ -5,7 +5,7 @@ class Experiment{
   final int maxRecurrence;
   final int maxRegime;
   final int maxBoxVariety;
-  final String startTime;
+  final DateTime startTime;
 
   const Experiment({
     required this.id,
@@ -36,7 +36,7 @@ class Experiment{
         maxRecurrence: json['max_recurrence'] as int,
         maxRegime: json['max_regime'] as int,
         maxBoxVariety: json['max_box_variety'] as int,
-        startTime: json['start_time'] as String
+        startTime: DateTime.parse(json['start_time'].toString())
         );
   }
 }

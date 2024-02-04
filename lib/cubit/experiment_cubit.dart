@@ -12,8 +12,9 @@ class ExperimentsCubit extends Cubit<ExperimentsState>{
       emit(const ExperimentsLoading());
       final experiments = await _experimentsRepository.fetchExperiments("https://protiraki.beget.app/api/experiment");
       emit(ExperimentsSuccess(experiments));
-    } on NetworkException {
-      emit(const ExperimentsError("Проблемы с интернетом."));
+    } 
+    catch(e) {
+      emit(ExperimentsError("Проблемы с ${e.toString()}"));
     }
   }
 
