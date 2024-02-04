@@ -1,11 +1,15 @@
 class Experiment{
+  final int id;
+  final List<int> currentValues;
   final String title;
   final int maxRecurrence;
   final int maxRegime;
   final int maxBoxVariety;
-  final DateTime startTime;
+  final String startTime;
 
   const Experiment({
+    required this.id,
+    required this.currentValues,
     required this.title,
     required this.maxRecurrence,
     required this.maxRegime,
@@ -13,8 +17,9 @@ class Experiment{
     required this.startTime,
   });
 
-  Map<String, Object?> toDataBase(){
+  Map<String, Object?> toJson(){
     return <String, Object?> {
+    'current_values': currentValues,
     'title': title,
     'max_recurrence': maxRecurrence,
     'max_regime': maxRegime,
@@ -23,10 +28,15 @@ class Experiment{
     };
   }
 
-  Experiment.fromDataBase(Map<String, Object?> data)
-      : title = data['title'] as String,
-        maxRecurrence = data['max_recurrence'] as int,
-        maxRegime = data['max_regime'] as int,
-        maxBoxVariety = data['max_box_variety'] as int,
-        startTime = data['start_time'] as DateTime;
+  factory Experiment.fromJson(Map<String, Object?> json){
+    return Experiment(
+        id: json['id'] as int,
+        currentValues: (json['current_values'] as List).map((e) => e as int).toList(),
+        title: json['title'] as String,
+        maxRecurrence: json['max_recurrence'] as int,
+        maxRegime: json['max_regime'] as int,
+        maxBoxVariety: json['max_box_variety'] as int,
+        startTime: json['start_time'] as String
+        );
+  }
 }
