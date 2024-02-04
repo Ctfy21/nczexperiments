@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nczexperiments/cubit/experiment_cubit.dart';
-import 'package:nczexperiments/cubit/experiment_repository.dart';
-import 'package:nczexperiments/cubit/experiment_state.dart';
+import 'package:nczexperiments/cubit/experiments/experiments_cubit.dart';
+import 'package:nczexperiments/cubit/experiments/experiments_repository.dart';
+import 'package:nczexperiments/cubit/experiments/experiments_state.dart';
 
 void main() {
   runApp(SafeArea(
@@ -93,10 +93,7 @@ class DetailScreen extends StatelessWidget {
           alignment: Alignment.center,
           child: BlocBuilder<ExperimentsCubit, ExperimentsState>(
             builder: (context, state) {
-                if(state is ExperimentsInitial){
-                  context.read<ExperimentsCubit>().getExperiments();
-                  return const Center(child: CircularProgressIndicator()); 
-                }
+                if(state is ExperimentsInitial){}
                 if(state is ExperimentsLoading){
                   return const Center(child: CircularProgressIndicator());
                 }

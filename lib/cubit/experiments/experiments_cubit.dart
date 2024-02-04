@@ -1,11 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nczexperiments/cubit/experiment_repository.dart';
-import 'package:nczexperiments/cubit/experiment_state.dart';
+import 'package:nczexperiments/cubit/experiments/experiments_repository.dart';
+import 'package:nczexperiments/cubit/experiments/experiments_state.dart';
 
 class ExperimentsCubit extends Cubit<ExperimentsState>{
   final ExperimentsRepository _experimentsRepository;
 
-  ExperimentsCubit(this._experimentsRepository) : super(const ExperimentsInitial());
+  ExperimentsCubit(this._experimentsRepository) : super(const ExperimentsInitial()){
+    getExperiments();
+  }
 
   Future<void> getExperiments() async{
     try{

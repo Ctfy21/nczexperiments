@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+// import 'package:nczexperiments/cubit/current_value/current_value_cubit.dart';
+// import 'package:nczexperiments/models/current_value.dart';
 import 'package:nczexperiments/models/experiment.dart';
 import 'package:http/http.dart' as http;
 
 abstract class ExperimentsRepository{
   Future<List<Experiment>> fetchExperiments(String url);
+  // Future<List<CurrentValue>> fetchCurrentValuesFromExperiment(Experiment experiment);
 }
 
 class FetchExperimentsRepository implements ExperimentsRepository {
@@ -23,6 +26,8 @@ class FetchExperimentsRepository implements ExperimentsRepository {
       throw NetworkException();
     }
   }
+
+
 }
 
 class NetworkException implements Exception {

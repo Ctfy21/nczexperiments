@@ -6,8 +6,6 @@ abstract class ExperimentsState {
 
 class ExperimentsInitial extends ExperimentsState{
   const ExperimentsInitial();
-
-  
 }
 
 class ExperimentsLoading extends ExperimentsState{
