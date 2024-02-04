@@ -5,17 +5,19 @@ import 'package:nczexperiments/cubit/experiment_repository.dart';
 import 'package:nczexperiments/cubit/experiment_state.dart';
 
 void main() {
-  runApp(MaterialApp(
-    title: "NCZ experiments",
-    theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-    initialRoute: '/',
-    routes: {
-      '/': (BuildContext context) => const MainScreen(),
-      '/details': (BuildContext context) => const DetailScreen()
-    },
+  runApp(SafeArea(
+    child: MaterialApp(
+      title: "NCZ experiments",
+      theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+      initialRoute: '/',
+      routes: {
+        '/': (BuildContext context) => const MainScreen(),
+        '/details': (BuildContext context) => const DetailScreen()
+      },
+    ),
   ));
 }
 
@@ -60,8 +62,8 @@ class MainScreen extends StatelessWidget {
                   ),
                   Center(
                     child: ElevatedButton(
-                      onPressed: () => print("222"),
-                      child: Text("Внести данные")),
+                      onPressed: () {},
+                      child: const Text("Внести данные")),
                   )
                 ]
               ),
@@ -105,8 +107,10 @@ class DetailScreen extends StatelessWidget {
                   return ListView.builder(
                     itemCount: state.experiments.length,
                     itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(state.experiments[index].title),
+                      return Card(
+                        child: ListTile(
+                          title: Text(state.experiments[index].title, textAlign: TextAlign.center, style: const TextStyle(fontWeight:  FontWeight.w500)),
+                        ),
                       );
                     },
                   );
