@@ -5,10 +5,8 @@ import 'package:nczexperiments/cubit/experiments/experiments_state.dart';
 class ExperimentsCubit extends Cubit<ExperimentsState>{
   final ExperimentsRepository _experimentsRepository;
 
-  ExperimentsCubit(this._experimentsRepository) : super(const ExperimentsInitial()){
-    getExperiments();
-  }
-
+  ExperimentsCubit(this._experimentsRepository) : super(const ExperimentsInitial());
+  
   Future<void> getExperiments() async{
     try{
       emit(const ExperimentsLoading());
