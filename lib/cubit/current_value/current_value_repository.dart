@@ -14,7 +14,7 @@ class FetchCurrentValueRepository implements CurrentValueRepository {
     final response = await http.get(uri);
     if (response.statusCode == 200){
       final json = jsonDecode(response.body);
-      CurrentValue currentValue = CurrentValue.fromJson(json);
+      CurrentValue currentValue = CurrentValue.fromJsonCurrentValue(json);
       return currentValue;
     }
     else{

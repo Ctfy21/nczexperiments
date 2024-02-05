@@ -18,7 +18,7 @@ class FetchExperimentsRepository implements ExperimentsRepository {
     final response = await http.get(uri);
     if (response.statusCode == 200){
       final json = jsonDecode(response.body)["results"];
-      List<dynamic> tempData = json.map((data) => Experiment.fromJson(data)).toList();
+      List<dynamic> tempData = json.map((data) => Experiment.fromJsonExperiment(data)).toList();
       List<Experiment> experiments = tempData.cast<Experiment>();
       return experiments;
     }

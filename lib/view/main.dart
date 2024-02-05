@@ -39,17 +39,14 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: 'experiments',
           builder: (BuildContext context, GoRouterState state) {
-            try{return const ExperimentsScreen();}
-            catch(e){
-              return ErrorScreen(message: e.toString());
-            }
+            return const ExperimentsScreen();
           },
         ),
         GoRoute(
           path: 'experimentvalues',
           builder: (BuildContext context, GoRouterState state) {
             try{
-              Experiment experiment = state.extra as Experiment;
+              Experiment experiment = state.extra! as Experiment;
               return ExperimentValuesScreen(experiment: experiment);
             }
             catch (e){
@@ -146,24 +143,13 @@ class ExperimentsScreen extends StatelessWidget {
           backgroundColor: Colors.deepPurpleAccent,
           title: const Text("NCZ Experiments"),
         ),
-        body: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (context) => ExperimentsCubit(FetchExperimentsRepository()),
-            ),
-            BlocProvider(
-              create: (context) => CurrentValueCubit(FetchCurrentValueRepository()),
-            ),
-          ],
+        body: BlocProvider(
+          create: (context) => ExperimentsCubit(FetchExperimentsRepository()),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
             alignment: Alignment.center,
             child: BlocBuilder<ExperimentsCubit, ExperimentsState>(
-              builder: (context, state) {
-                  if(state is ExperimentsInitial){
-                    context.read<ExperimentsCubit>().getExperiments();
-                    return const Center(child: CircularProgressIndicator());
-                  }
+              builder: (context, state) {          
                   if(state is ExperimentsLoading){
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -213,46 +199,50 @@ class ExperimentValuesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.deepPurpleAccent,
           title: const Text("NCZ Experiments"),
         ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          alignment: Alignment.center,
-          child: BlocBuilder<CurrentValueCubit, CurrentValueState>(
-            builder: (context, state) {
-              if(state is CurrentValuesInitial){
-                context.read<CurrentValueCubit>().getCurrentValuesFromExperiment(experiment);
-                return const Center(child: CircularProgressIndicator());
-              }
-              if(state is CurrentValuesLoading){
-                return const Center(child: CircularProgressIndicator());
-              }
-              if(state is CurrentValuesError){
-                return Center(child: Text(state.message));
-              }
-              if(state is CurrentValuesSuccess){
-                return ListView.builder(
-                  itemCount: state.currentValues.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      child: Center(
-                        child: ListTile(
-                          title: Text(state.currentValues[index].allPlants.toString(), style: const TextStyle(fontWeight:  FontWeight.w500)),
-                          subtitle: Text('Время начала эксперимента - ${state.currentValues[index].timeCreate.day}.${state.currentValues[index].timeCreate.month}.${state.currentValues[index].timeCreate.year}'),
+        body: BlocProvider(
+          create: (context) => CurrentValueCubit(FetchCurrentValueRepository()),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            alignment: Alignment.center,
+            child: BlocBuilder<CurrentValueCubit, CurrentValueState>(
+              builder: (context, state) {
+                if(state is CurrentValuesInitial){
+                  context.read<CurrentValueCubit>().getCurrentValuesFromExperiment(experiment);
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if(state is CurrentValuesLoading){
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if(state is CurrentValuesError){
+                  return Center(child: Text(state.message));
+                }
+                if(state is CurrentValuesSuccess){
+                  return ListView.builder(
+                    itemCount: state.currentValues.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        child: Center(
+                          child: ListTile(
+                            title: Text(state.currentValues[index].allPlants.toString(), style: const TextStyle(fontWeight:  FontWeight.w500)),
+                            subtitle: Text('Время начала эксперимента - ${state.currentValues[index].timeCreate.day}.${state.currentValues[index].timeCreate.month}.${state.currentValues[index].timeCreate.year}'),
+                          ),
                         ),
-                      ),
-                    );                    
-                  },
-                );
-              }
-              else{
-                return const Center(child: Text("Неизвестная ошибка, пожалуйста напишите сообщение администратору."));
-              }
-            },
+                      );                    
+                    },
+                  );
+                }
+                else{
+                  return const Center(child: Text("Неизвестная ошибка, пожалуйста напишите сообщение администратору."));
+                }
+              },
+            ),
           ),
         )
       ),

@@ -24,11 +24,11 @@ class Experiment{
     'max_recurrence': maxRecurrence,
     'max_regime': maxRegime,
     'max_box_variety': maxBoxVariety,
-    'start_time': startTime
+    'start_time': startTime.toString()
     };
   }
 
-  factory Experiment.fromJson(Map<String, Object?> json){
+  factory Experiment.fromJsonExperiment(Map<String, Object?> json){
     return Experiment(
         id: json['id'] as int,
         currentValues: (json['current_values'] as List).map((e) => e as int).toList(),

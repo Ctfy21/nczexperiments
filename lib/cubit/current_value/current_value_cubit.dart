@@ -9,7 +9,7 @@ import 'package:nczexperiments/models/experiment.dart';
 class CurrentValueCubit extends Cubit<CurrentValueState>{
   final CurrentValueRepository currentValueRepository;
 
-  CurrentValueCubit(this.currentValueRepository) : super(const CurrentValueInitial());
+  CurrentValueCubit(this.currentValueRepository) : super(const CurrentValuesInitial());
 
   Future<void> getCurrentValue(int id) async{
     try{
@@ -27,12 +27,12 @@ class CurrentValueCubit extends Cubit<CurrentValueState>{
     try{
       emit(const CurrentValuesLoading());
       for(var id in experiment.currentValues){
-        addCurrentValue(await currentValueRepository.fetchCurrentValue("https://protiraki.beget.app/api/currentvaluesdetail/${id.toString()}"));
+        addCurrentValue(await currentValueRepository.fetchCurrentValue("http://protiraki.beget.app/api/currentvaluesdetail/${id.toString()}"));
       }
       emit(CurrentValuesSuccess(state.currentValues ?? []));
     }
     catch(e){
-      emit(CurrentValueError("Проблемы с ${e.toString()}"));
+      emit(CurrentValuesError("Проблемы с ${e.toString()}"));
     }
   }
 

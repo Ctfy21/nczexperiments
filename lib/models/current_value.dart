@@ -23,7 +23,7 @@ class CurrentValue{
     required this.experimentId,
   });
 
-  Map<String, Object?> toJson(){
+  Map<String, Object?> toJsonCurrentValue(){
     return <String, Object?> {
       'time_create': timeCreate,
       'time_update': timeUpdate,
@@ -38,7 +38,7 @@ class CurrentValue{
     };
   }
 
-  factory CurrentValue.fromJson(Map<String, Object?> json){
+  factory CurrentValue.fromJsonCurrentValue(Map<String, Object?> json){
     return CurrentValue(
         id: json['id'] as int,
         timeCreate: DateTime.parse(json['time_create'].toString()),
