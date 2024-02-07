@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nczexperiments/cubit/box/box_cubit.dart';
+import 'package:nczexperiments/cubit/box/box_repository.dart';
+import 'package:nczexperiments/cubit/box/box_state.dart';
 import 'package:nczexperiments/cubit/current_value/current_value_cubit.dart';
 import 'package:nczexperiments/cubit/current_value/current_value_repository.dart';
 import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
+import 'package:nczexperiments/cubit/experiment_boxes/experiment_boxes_cubit.dart';
+import 'package:nczexperiments/cubit/experiment_boxes/experiment_boxes_repository.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_cubit.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_repository.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_state.dart';
+import 'package:nczexperiments/models/current_value.dart';
 import 'package:nczexperiments/models/experiment.dart';
 
 void main() => runApp(const MyApp());
@@ -206,8 +212,12 @@ class ExperimentValuesScreen extends StatelessWidget {
           backgroundColor: Colors.deepPurpleAccent,
           title: const Text("NCZ Experiments"),
         ),
-        body: BlocProvider(
-          create: (context) => CurrentValueCubit(FetchCurrentValueRepository()),
+        body: MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) => CurrentValueCubit(FetchCurrentValueRepository())),
+            BlocProvider(create: (context) => BoxCubit(FetchBoxRepository())),
+            BlocProvider(create: (context) => ExperimentBoxesCubit(FetchExperimentBoxesRepository())),
+          ],
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
             alignment: Alignment.center,
@@ -220,23 +230,41 @@ class ExperimentValuesScreen extends StatelessWidget {
                 if(state is CurrentValuesLoading){
                   return const Center(child: CircularProgressIndicator());
                 }
-                if(state is CurrentValuesError){
-                  return Center(child: Text(state.message));
-                }
                 if(state is CurrentValuesSuccess){
                   return ListView.builder(
                     itemCount: state.currentValues.length,
                     itemBuilder: (context, index) {
                       return Card(
-                        child: Center(
-                          child: ListTile(
-                            title: Text(state.currentValues[index].allPlants.toString(), style: const TextStyle(fontWeight:  FontWeight.w500)),
-                            subtitle: Text('Время начала эксперимента - ${state.currentValues[index].timeCreate.day}.${state.currentValues[index].timeCreate.month}.${state.currentValues[index].timeCreate.year}'),
-                          ),
-                        ),
+                        child: Column(
+                          children: [
+                            BlocBuilder<BoxCubit, BoxState>(
+                              builder: (contextBox, stateBox) {
+                                if(stateBox is BoxInitial){
+                                  context.read<BoxCubit>().getBox(state.currentValues[index].boxId);
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                                if(stateBox is BoxLoading){
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                                if(stateBox is BoxError){
+                                  return Center(child: Text(stateBox.message));
+                                }
+                                if(stateBox is BoxSuccess){
+                                  return Text(stateBox.box.boxNumber.toString());
+                                }
+                                else{
+                                  return const Center(child: Text("Box: Error"));
+                                }
+                              },
+                            ),
+                            widget(child: dataTableCurrentValues(state.currentValues[index]))
+                          ])
                       );                    
                     },
                   );
+                }
+                if(state is CurrentValuesError){
+                  return Center(child: Text(state.message));
                 }
                 else{
                   return const Center(child: Text("Неизвестная ошибка, пожалуйста напишите сообщение администратору."));
@@ -271,4 +299,20 @@ class ErrorScreen extends StatelessWidget {
     );
   }
     
+}
+
+DataTable dataTableCurrentValues(CurrentValue currentValue){
+  return DataTable(columns: currentValuesDataColumn(), rows: currentValuesDataRows(currentValue));
+}
+
+List<DataColumn> currentValuesDataColumn(){
+  return [
+    const DataColumn(label: Text("Сорт")),
+    const DataColumn(label: Text("Всего растений")),
+    const DataColumn(label: Text("Живые растения")),
+    const DataColumn(label: Text("% живых")),
+  ];
+}
+
+List<DataRow> currentValuesDataRows(CurrentValue currentValue){
 }

@@ -25,10 +25,10 @@ class CurrentValueCubit extends Cubit<CurrentValueState>{
   Future<void> getCurrentValuesFromExperiment(Experiment experiment) async{
     emit(const CurrentValuesInitial());
     try{
-      emit(const CurrentValuesLoading());
       for(var id in experiment.currentValues){
         addCurrentValue(await currentValueRepository.fetchCurrentValue("http://protiraki.beget.app/api/currentvaluesdetail/${id.toString()}"));
       }
+      sortCurrentValuesBoxID(state.currentValues!);
       emit(CurrentValuesSuccess(state.currentValues ?? []));
     }
     catch(e){
@@ -40,10 +40,16 @@ class CurrentValueCubit extends Cubit<CurrentValueState>{
     emit(state.copyWith(newCurrentValue: currentValue));
   }
 
+
   void addCurrentValue(CurrentValue newCurrentValue) {
     final currentValues = List<CurrentValue>.from(state.currentValues ?? []);
     currentValues.add(newCurrentValue);
-    emit(state.copyWith(newCurrentValues: currentValues));
+    emit(CurrentValuesLoading(currentValues));
+  }
+
+  void sortCurrentValuesBoxID(List<CurrentValue> list){
+    list.sort((a, b) => a.boxId.compareTo(b.boxId));
+    emit(CurrentValuesLoading(list));
   }
 
 }

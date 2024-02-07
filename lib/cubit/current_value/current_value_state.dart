@@ -63,7 +63,11 @@ class CurrentValuesInitial extends CurrentValueState{
 }
 
 class CurrentValuesLoading extends CurrentValueState{
-  const CurrentValuesLoading();
+  // ignore: annotate_overrides, overridden_fields
+  final List<CurrentValue> currentValues;
+  CurrentValuesLoading(this.currentValues){
+    copyWith(newCurrentValues: currentValues);
+  }
 }
 
 

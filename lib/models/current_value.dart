@@ -50,7 +50,6 @@ class CurrentValue{
         varietyId: json['variety_id'] as int,
         boxId: json['box_id'] as int,
         experimentId: json['experiment_id'] as int,
-
         );
   }
 }
