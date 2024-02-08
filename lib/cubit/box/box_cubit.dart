@@ -18,4 +18,15 @@ class BoxCubit extends Cubit<BoxState>{
     }
   }
 
+  Future<void> getListBoxByExperimentId(int id) async{
+    try{
+      emit(const BoxesLoading());
+      final boxes = await boxRepository.fetchListBox("https://protiraki.beget.app/api/currentvaluesboxesids?experimentid=${id.toString()}");
+      emit(BoxesSuccess(boxes));
+    } 
+    catch(e) {
+      emit(BoxesError("Проблемы с ${e.toString()}"));
+    }
+  }
+
 }

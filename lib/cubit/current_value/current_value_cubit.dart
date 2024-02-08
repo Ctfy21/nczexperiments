@@ -36,6 +36,18 @@ class CurrentValueCubit extends Cubit<CurrentValueState>{
     }
   }
 
+  Future<void> getCurrentValuesFromBoxId(int boxId) async{
+    emit(const CurrentValuesInitial());
+    try{
+      
+      sortCurrentValuesBoxID(state.currentValues!);
+      emit(CurrentValuesSuccess(state.currentValues ?? []));
+    }
+    catch(e){
+      emit(CurrentValuesError("Проблемы с ${e.toString()}"));
+    }
+  }
+
   void setCurrentValue(CurrentValue currentValue){  
     emit(state.copyWith(newCurrentValue: currentValue));
   }

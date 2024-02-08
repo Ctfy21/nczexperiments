@@ -7,8 +7,6 @@ import 'package:nczexperiments/cubit/box/box_state.dart';
 import 'package:nczexperiments/cubit/current_value/current_value_cubit.dart';
 import 'package:nczexperiments/cubit/current_value/current_value_repository.dart';
 import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
-import 'package:nczexperiments/cubit/experiment_boxes/experiment_boxes_cubit.dart';
-import 'package:nczexperiments/cubit/experiment_boxes/experiment_boxes_repository.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_cubit.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_repository.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_state.dart';
@@ -204,8 +202,6 @@ class ExperimentValuesScreen extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
-
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -214,64 +210,67 @@ class ExperimentValuesScreen extends StatelessWidget {
         ),
         body: MultiBlocProvider(
           providers: [
-            BlocProvider(create: (context) => CurrentValueCubit(FetchCurrentValueRepository())),
             BlocProvider(create: (context) => BoxCubit(FetchBoxRepository())),
-            BlocProvider(create: (context) => ExperimentBoxesCubit(FetchExperimentBoxesRepository())),
+            BlocProvider(create: (context) => CurrentValueCubit(FetchCurrentValueRepository())),
           ],
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            alignment: Alignment.center,
-            child: BlocBuilder<CurrentValueCubit, CurrentValueState>(
-              builder: (context, state) {
-                if(state is CurrentValuesInitial){
-                  context.read<CurrentValueCubit>().getCurrentValuesFromExperiment(experiment);
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if(state is CurrentValuesLoading){
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if(state is CurrentValuesSuccess){
-                  return ListView.builder(
-                    itemCount: state.currentValues.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        child: Column(
-                          children: [
-                            BlocBuilder<BoxCubit, BoxState>(
-                              builder: (contextBox, stateBox) {
-                                if(stateBox is BoxInitial){
-                                  context.read<BoxCubit>().getBox(state.currentValues[index].boxId);
-                                  return const Center(child: CircularProgressIndicator());
-                                }
-                                if(stateBox is BoxLoading){
-                                  return const Center(child: CircularProgressIndicator());
-                                }
-                                if(stateBox is BoxError){
-                                  return Center(child: Text(stateBox.message));
-                                }
-                                if(stateBox is BoxSuccess){
-                                  return Text(stateBox.box.boxNumber.toString());
-                                }
-                                else{
-                                  return const Center(child: Text("Box: Error"));
-                                }
-                              },
-                            ),
-                            widget(child: dataTableCurrentValues(state.currentValues[index]))
-                          ])
-                      );                    
-                    },
-                  );
-                }
-                if(state is CurrentValuesError){
-                  return Center(child: Text(state.message));
-                }
-                else{
-                  return const Center(child: Text("Неизвестная ошибка, пожалуйста напишите сообщение администратору."));
-                }
-              },
-            ),
-          ),
+          child: BlocBuilder<BoxCubit, BoxState>(
+            builder: (contextBoxes, stateBoxes) {
+              if(stateBoxes is BoxInitial){
+                contextBoxes.read<BoxCubit>().getListBoxByExperimentId(experiment.id);
+                return const Center(child: CircularProgressIndicator());
+              }
+              if(stateBoxes is BoxesLoading){
+                return const Center(child: CircularProgressIndicator());
+              }
+              if(stateBoxes is BoxesError){
+                return Center(child: Text(stateBoxes.message));
+              }
+              if(stateBoxes is BoxesSuccess){
+                return ListView.builder(
+                  itemCount: stateBoxes.boxes.length,
+                  itemBuilder: (contextList, index) {
+                    return Card(
+                      child: Column(
+                        children: [
+                          Text(stateBoxes.boxes[index].boxNumber.toString()),
+                          BlocBuilder<CurrentValueCubit, CurrentValueState>(
+                            builder: (contextCurrentValue, stateCurrentValue) {
+                              if(stateCurrentValue is CurrentValuesInitial){
+                                context.read<CurrentValueCubit>().getCurrentValuesFromBoxId(stateBoxes.boxes[index].id);
+                                return const Center(child: CircularProgressIndicator());
+                              }
+                              if(stateCurrentValue is CurrentValuesLoading){
+                                return const Center(child: CircularProgressIndicator());
+                              }
+                              if(stateCurrentValue is CurrentValuesError){
+                                return Center(child: Text(stateCurrentValue.message));
+                              }
+                              if(stateCurrentValue is CurrentValuesSuccess){
+                                return ListView.builder(
+                                  itemCount: stateCurrentValue.currentValues.length,
+                                  itemBuilder: (context, index) {
+                                    Row(children: [
+                                      
+                                    ],)
+                                  },
+                                );
+                              }
+                              else{
+                                return const Center(child: Text("CurrentValue: error"));
+                              }
+                            },
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }
+              else{
+                return const Center(child: Text("ExperimentBoxes: Error"));
+              }
+            },
+          )
         )
       ),
     );
@@ -301,18 +300,18 @@ class ErrorScreen extends StatelessWidget {
     
 }
 
-DataTable dataTableCurrentValues(CurrentValue currentValue){
-  return DataTable(columns: currentValuesDataColumn(), rows: currentValuesDataRows(currentValue));
-}
+// DataTable dataTableCurrentValues(CurrentValue currentValue){
+//   return DataTable(columns: currentValuesDataColumn(), rows: currentValuesDataRows(currentValue));
+// }
 
-List<DataColumn> currentValuesDataColumn(){
-  return [
-    const DataColumn(label: Text("Сорт")),
-    const DataColumn(label: Text("Всего растений")),
-    const DataColumn(label: Text("Живые растения")),
-    const DataColumn(label: Text("% живых")),
-  ];
-}
+// List<DataColumn> currentValuesDataColumn(){
+//   return [
+//     const DataColumn(label: Text("Сорт")),
+//     const DataColumn(label: Text("Всего растений")),
+//     const DataColumn(label: Text("Живые растения")),
+//     const DataColumn(label: Text("% живых")),
+//   ];
+// }
 
-List<DataRow> currentValuesDataRows(CurrentValue currentValue){
-}
+// List<DataRow> currentValuesDataRows(CurrentValue currentValue){
+// }

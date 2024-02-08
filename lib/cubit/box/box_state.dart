@@ -1,7 +1,17 @@
 import 'package:nczexperiments/models/box.dart';
 
-abstract class BoxState {
-  const BoxState();
+class BoxState {
+  final Box? boxValue;
+  final List<Box>? boxValues;
+
+  const BoxState({this.boxValue, this.boxValues});
+
+    BoxState copyWith({Box? newBoxValue, List<Box>? newBoxValues}) {
+    return BoxState(
+      boxValue: newBoxValue ?? boxValue,
+      boxValues: newBoxValues ?? boxValues,
+    );
+  } 
 }
 
 class BoxInitial extends BoxState{
@@ -36,6 +46,42 @@ class BoxError extends BoxState{
     if (identical(this, other)) return true;
 
     return other is BoxError && other.message == message;
+  }
+
+  @override
+  int get hashCode => message.hashCode;
+
+}
+
+
+class BoxesLoading extends BoxState{
+  const BoxesLoading();
+}
+
+class BoxesSuccess extends BoxState{
+  final List<Box> boxes;
+  const BoxesSuccess(this.boxes);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is BoxSuccess && other.boxValues == boxes;
+  }
+
+  @override
+  int get hashCode => boxValues.hashCode;
+}
+
+class BoxesError extends BoxState{
+  final String message;
+  const BoxesError(this.message);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is BoxesError && other.message == message;
   }
 
   @override
