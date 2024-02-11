@@ -14,7 +14,7 @@ class FetchBoxRepository implements BoxRepository {
     final uri = Uri.parse(url);
     final response = await http.get(uri);
     if (response.statusCode == 200){
-      final json = jsonDecode(response.body)["results"];
+      final json = jsonDecode(response.body);
       Box box = Box.fromJsonBox(json);
       return box;
     }
@@ -28,8 +28,11 @@ class FetchBoxRepository implements BoxRepository {
     final uri = Uri.parse(url);
     final response = await http.get(uri);
     if (response.statusCode == 200){
-      List<dynamic> json = jsonDecode(response.body)["results"];
-      List<Box> boxes = json.cast<Box>();
+      List<dynamic> json = jsonDecode(response.body);
+      List<Box> boxes = [];
+      for(var element in json){
+        boxes.add(Box.fromJsonBox(element));
+      }
       return boxes;
     }
     else{

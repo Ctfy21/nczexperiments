@@ -1,3 +1,5 @@
+import 'package:nczexperiments/models/variety.dart';
+
 class CurrentValue{
   final int id;
   final DateTime timeCreate;
@@ -6,7 +8,7 @@ class CurrentValue{
   final int livePlants;
   final int? grownPlantsValue;
   final double livePlantsPercent;
-  final int varietyId;
+  final Variety varietyId;
   final int boxId;
   final int experimentId;
 
@@ -38,18 +40,18 @@ class CurrentValue{
     };
   }
 
-  factory CurrentValue.fromJsonCurrentValue(Map<String, Object?> json){
+  factory CurrentValue.fromJsonCurrentValue(List<dynamic> json){
     return CurrentValue(
-        id: json['id'] as int,
-        timeCreate: DateTime.parse(json['time_create'].toString()),
-        timeUpdate: DateTime.parse(json['time_update'].toString()),
-        allPlants: json['all_plants'] as int,
-        livePlants: json['live_plants'] as int,
-        grownPlantsValue: json['grown_plants_value'] as int?,
-        livePlantsPercent: json['live_plants_percent'] as double,
-        varietyId: json['variety_id'] as int,
-        boxId: json['box_id'] as int,
-        experimentId: json['experiment_id'] as int,
+        id: json[0]['id'] as int,
+        timeCreate: DateTime.parse(json[0]['time_create'].toString()),
+        timeUpdate: DateTime.parse(json[0]['time_update'].toString()),
+        allPlants: json[0]['all_plants'] as int,
+        livePlants: json[0]['live_plants'] as int,
+        grownPlantsValue: json[0]['grown_plants_value'] as int?,
+        livePlantsPercent: json[0]['live_plants_percent'] as double,
+        varietyId: json[0]['variety_id'] as Variety,
+        boxId: json[0]['box_id'] as int,
+        experimentId: json[0]['experiment_id'] as int,
         );
   }
 }

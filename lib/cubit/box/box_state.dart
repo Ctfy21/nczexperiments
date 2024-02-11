@@ -60,7 +60,9 @@ class BoxesLoading extends BoxState{
 
 class BoxesSuccess extends BoxState{
   final List<Box> boxes;
-  const BoxesSuccess(this.boxes);
+  BoxesSuccess(this.boxes){
+    copyWith(newBoxValues: boxes);
+  }
 
   @override
   bool operator ==(Object other) {

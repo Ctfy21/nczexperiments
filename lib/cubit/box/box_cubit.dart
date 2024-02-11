@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nczexperiments/cubit/box/box_repository.dart';
 import 'package:nczexperiments/cubit/box/box_state.dart';
+import 'package:nczexperiments/models/box.dart';
 
 class BoxCubit extends Cubit<BoxState>{
   final BoxRepository boxRepository;
@@ -21,7 +22,7 @@ class BoxCubit extends Cubit<BoxState>{
   Future<void> getListBoxByExperimentId(int id) async{
     try{
       emit(const BoxesLoading());
-      final boxes = await boxRepository.fetchListBox("https://protiraki.beget.app/api/currentvaluesboxesids?experimentid=${id.toString()}");
+      List<Box> boxes = await boxRepository.fetchListBox("https://protiraki.beget.app/api/currentvaluesboxesids?experimentid=${id.toString()}");
       emit(BoxesSuccess(boxes));
     } 
     catch(e) {

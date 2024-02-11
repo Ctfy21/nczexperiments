@@ -39,7 +39,8 @@ class CurrentValueCubit extends Cubit<CurrentValueState>{
   Future<void> getCurrentValuesFromBoxId(int boxId) async{
     emit(const CurrentValuesInitial());
     try{
-      
+      final list = await currentValueRepository.fetchCurrentValuesByBoxId("https://protiraki.beget.app/api/currentvalues?boxid=${boxId.toString()}");
+      emit(CurrentValuesLoading(list));
       sortCurrentValuesBoxID(state.currentValues!);
       emit(CurrentValuesSuccess(state.currentValues ?? []));
     }

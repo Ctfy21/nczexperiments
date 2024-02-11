@@ -10,7 +10,6 @@ import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_cubit.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_repository.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_state.dart';
-import 'package:nczexperiments/models/current_value.dart';
 import 'package:nczexperiments/models/experiment.dart';
 
 void main() => runApp(const MyApp());
@@ -232,11 +231,11 @@ class ExperimentValuesScreen extends StatelessWidget {
                     return Card(
                       child: Column(
                         children: [
-                          Text(stateBoxes.boxes[index].boxNumber.toString()),
+                          Text(stateBoxes.boxes[index].boxNumber),
                           BlocBuilder<CurrentValueCubit, CurrentValueState>(
                             builder: (contextCurrentValue, stateCurrentValue) {
                               if(stateCurrentValue is CurrentValuesInitial){
-                                context.read<CurrentValueCubit>().getCurrentValuesFromBoxId(stateBoxes.boxes[index].id);
+                                contextCurrentValue.read<CurrentValueCubit>().getCurrentValuesFromBoxId(stateBoxes.boxes[index].id);
                                 return const Center(child: CircularProgressIndicator());
                               }
                               if(stateCurrentValue is CurrentValuesLoading){
@@ -249,9 +248,12 @@ class ExperimentValuesScreen extends StatelessWidget {
                                 return ListView.builder(
                                   itemCount: stateCurrentValue.currentValues.length,
                                   itemBuilder: (context, index) {
-                                    Row(children: [
-                                      
-                                    ],)
+                                    return Row(children: [
+                                      Text(stateCurrentValue.currentValues[index].varietyId.title),
+                                      Text(stateCurrentValue.currentValues[index].allPlants.toString()),
+                                      Text(stateCurrentValue.currentValues[index].livePlants.toString()),
+                                      Text(stateCurrentValue.currentValues[index].livePlantsPercent.toString()),
+                                    ],);
                                   },
                                 );
                               }
