@@ -49,6 +49,10 @@ class CurrentValueCubit extends Cubit<CurrentValueState>{
     }
   }
 
+  Future<void> returnInitialState() async{
+    emit(const CurrentValuesInitial());
+  }
+
   void setCurrentValue(CurrentValue currentValue){  
     emit(state.copyWith(newCurrentValue: currentValue));
   }

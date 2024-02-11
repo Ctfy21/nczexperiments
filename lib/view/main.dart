@@ -10,6 +10,7 @@ import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_cubit.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_repository.dart';
 import 'package:nczexperiments/cubit/experiments/experiments_state.dart';
+import 'package:nczexperiments/func/get_current_values_list.dart';
 import 'package:nczexperiments/models/experiment.dart';
 
 void main() => runApp(const MyApp());
@@ -227,38 +228,35 @@ class ExperimentValuesScreen extends StatelessWidget {
               if(stateBoxes is BoxesSuccess){
                 return ListView.builder(
                   itemCount: stateBoxes.boxes.length,
-                  itemBuilder: (contextList, index) {
+                  itemBuilder: (contextList, indexBox) {
                     return Card(
                       child: Column(
                         children: [
-                          Text(stateBoxes.boxes[index].boxNumber),
-                          BlocBuilder<CurrentValueCubit, CurrentValueState>(
-                            builder: (contextCurrentValue, stateCurrentValue) {
-                              if(stateCurrentValue is CurrentValuesInitial){
-                                contextCurrentValue.read<CurrentValueCubit>().getCurrentValuesFromBoxId(stateBoxes.boxes[index].id);
-                                return const Center(child: CircularProgressIndicator());
-                              }
-                              if(stateCurrentValue is CurrentValuesLoading){
-                                return const Center(child: CircularProgressIndicator());
-                              }
-                              if(stateCurrentValue is CurrentValuesError){
-                                return Center(child: Text(stateCurrentValue.message));
-                              }
-                              if(stateCurrentValue is CurrentValuesSuccess){
-                                return ListView.builder(
-                                  itemCount: stateCurrentValue.currentValues.length,
-                                  itemBuilder: (context, index) {
-                                    return Row(children: [
-                                      Text(stateCurrentValue.currentValues[index].varietyId.title),
-                                      Text(stateCurrentValue.currentValues[index].allPlants.toString()),
-                                      Text(stateCurrentValue.currentValues[index].livePlants.toString()),
-                                      Text(stateCurrentValue.currentValues[index].livePlantsPercent.toString()),
-                                    ],);
-                                  },
-                                );
+                          Text('№${stateBoxes.boxes[indexBox].boxNumber}', style: const TextStyle(fontWeight: FontWeight.bold),),
+                          FutureBuilder(
+                            future: getCurrentValuesFromBoxId(stateBoxes.boxes[indexBox].id),
+                            builder: (context, snapshot) {
+                              if(snapshot.hasData){
+                                return DataTable(
+                                  columns: const [
+                                    DataColumn(label: Text('Название')),
+                                    DataColumn(label: Text('Всего раст.')),
+                                    DataColumn(label: Text('Живые раст.')),
+                                    DataColumn(label: Text('% живых'))
+                                  ],
+                                  rows: 
+                                    snapshot.data?.map((currentValue) => DataRow(
+                                      cells: [
+                                        DataCell(Text(currentValue.varietyId.title)),
+                                        DataCell(Text(currentValue.allPlants.toString())),
+                                        DataCell(Text(currentValue.livePlants.toString())),
+                                        DataCell(Text(currentValue.livePlantsPercent.toString())),
+                                      ]
+                                    )).toList() ?? []
+                                  );
                               }
                               else{
-                                return const Center(child: Text("CurrentValue: error"));
+                                return const Center(child: CircularProgressIndicator());
                               }
                             },
                           )

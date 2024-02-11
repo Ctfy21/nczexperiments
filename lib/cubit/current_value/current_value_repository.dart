@@ -13,8 +13,9 @@ class FetchCurrentValueRepository implements CurrentValueRepository {
   Future<CurrentValue> fetchCurrentValue(String url) async{
     final uri = Uri.parse(url);
     final response = await http.get(uri);
+    String body = utf8.decode(response.bodyBytes);
     if (response.statusCode == 200){
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(body);
       CurrentValue currentValue = CurrentValue.fromJsonCurrentValue(json);
       
       return currentValue;
@@ -29,15 +30,13 @@ class FetchCurrentValueRepository implements CurrentValueRepository {
   Future<List<CurrentValue>> fetchCurrentValuesByBoxId(String url) async{
     final uri = Uri.parse(url);
     final response = await http.get(uri);
+    String body = utf8.decode(response.bodyBytes);
     if (response.statusCode == 200){
-      List<dynamic> json = jsonDecode(response.body);
+      List<dynamic> json = jsonDecode(body);
       List<CurrentValue> values = [];
-      for (var element in json){
-        if(element is List<dynamic>){
-          
-        }
-      }
-      
+      for(var element in json){
+      values.add(CurrentValue.fromJsonCurrentValue(element));
+      }      
       return values;
     }
     else{
