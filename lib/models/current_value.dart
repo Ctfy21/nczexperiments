@@ -5,10 +5,10 @@ class CurrentValue{
   final DateTime timeCreate;
   final DateTime timeUpdate;
   final int sequenceBoxNumber;
-  final int allPlants;
-  final int livePlants;
+  final int? allPlants;
+  final int? livePlants;
   final int? grownPlantsValue;
-  final double livePlantsPercent;
+  final double? livePlantsPercent;
   final Variety varietyId;
   final int boxId;
   final int experimentId;
