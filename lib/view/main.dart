@@ -407,7 +407,6 @@ class CreateTemplateValueScreen extends StatelessWidget {
         body: Form(
           key: _formKey,
           child: Column(
-            
             children: [
               Padding(
                 padding: const EdgeInsets.all(25.0),
@@ -420,7 +419,8 @@ class CreateTemplateValueScreen extends StatelessWidget {
                     if(value!.isEmpty || value == ''){
                       return 'Пустой ввод!';
                     }
-                    return value;
+
+                    return null;
                   },
                 ),
               ),
