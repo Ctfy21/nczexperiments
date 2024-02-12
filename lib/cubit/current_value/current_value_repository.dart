@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 abstract class CurrentValueRepository{
   Future<CurrentValue> fetchCurrentValue(String url);
   Future<List<CurrentValue>> fetchCurrentValuesByBoxId(String url);
+  Future<String> postEmptyCurrentValue(String url, CurrentValue currentValue);
 }
 
 class FetchCurrentValueRepository implements CurrentValueRepository {
@@ -26,7 +27,7 @@ class FetchCurrentValueRepository implements CurrentValueRepository {
   }
 
 
-@override
+  @override
   Future<List<CurrentValue>> fetchCurrentValuesByBoxId(String url) async{
     final uri = Uri.parse(url);
     final response = await http.get(uri);
@@ -38,6 +39,18 @@ class FetchCurrentValueRepository implements CurrentValueRepository {
       values.add(CurrentValue.fromJsonCurrentValue(element));
       }      
       return values;
+    }
+    else{
+      throw NetworkException();
+    }
+  }
+
+  @override
+  Future<String> postEmptyCurrentValue(String url, CurrentValue currentValue) async{
+    final uri = Uri.parse(url);
+    final response = await http.post(uri, body: currentValue.toJsonEmptyCurrentValue());
+    if(response.statusCode <= 300){
+      return "Данные успешно отправлены!";
     }
     else{
       throw NetworkException();

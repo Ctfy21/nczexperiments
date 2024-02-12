@@ -1,9 +1,9 @@
 import 'package:nczexperiments/models/variety.dart';
 
 class CurrentValue{
-  final int id;
-  final DateTime timeCreate;
-  final DateTime timeUpdate;
+  final int? id;
+  final DateTime? timeCreate;
+  final DateTime? timeUpdate;
   final int sequenceBoxNumber;
   final int? allPlants;
   final int? livePlants;
@@ -27,19 +27,12 @@ class CurrentValue{
     required this.experimentId,
   });
 
-  Map<String, Object?> toJsonCurrentValue(){
+  Map<String, Object?> toJsonEmptyCurrentValue(){
     return <String, Object?> {
-      'time_create': timeCreate,
-      'time_update': timeUpdate,
-      'sequence_box_number': sequenceBoxNumber,
-      'all_plants': allPlants,
-      'live_plants': livePlants,
-      'grown_plants_value': grownPlantsValue,
-      'live_plants_percent': livePlantsPercent,
-      'variety_id': varietyId,
-      'box_id': boxId,
-      'experiment_id' : experimentId
-
+      'sequence_box_number': sequenceBoxNumber.toString(),
+      'variety_id': varietyId.id.toString(),
+      'box_id': boxId.toString(),
+      'experiment_id' : experimentId.toString()
     };
   }
 
@@ -64,10 +57,10 @@ class CurrentValue{
         timeCreate: DateTime.parse(json['time_create'].toString()),
         timeUpdate: DateTime.parse(json['time_update'].toString()),
         sequenceBoxNumber: json['sequence_box_number'] as int,
-        allPlants: json['all_plants'] as int,
-        livePlants: json['live_plants'] as int,
-        grownPlantsValue: json['grown_plants_value'] as int?,
-        livePlantsPercent: json['live_plants_percent'] as double,
+        allPlants: json['all_plants'] as int? ?? 0,
+        livePlants: json['live_plants'] as int? ?? 0,
+        grownPlantsValue: json['grown_plants_value'] as int? ?? 0,
+        livePlantsPercent: json['live_plants_percent'] as double? ?? 0,
         varietyId: Variety.fromJsonBox((json['variety_id'] as Map<String, Object?>)),
         boxId: json['box_id'] as int,
         experimentId: json['experiment_id'] as int,

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 abstract class BoxRepository{
   Future<Box> fetchBox(String url);
   Future<List<Box>> fetchListBox(String url);
+  Future<Box> addBox(String url, Box box);
 }
 
 class FetchBoxRepository implements BoxRepository {
@@ -40,6 +41,20 @@ class FetchBoxRepository implements BoxRepository {
     }
   }
 
+  @override
+  Future<Box> addBox(String url, Box box) async{
+    final uri = Uri.parse(url);
+    final response = await http.post(uri, body: box.toJson());
+    if (response.statusCode < 300){
+      final json = jsonDecode(response.body);
+      Box box = Box.fromJsonMapBox(json);      
+      return box;
+    }
+    else{
+      throw NetworkException();
+    }
+  }
+  
 
 }
 

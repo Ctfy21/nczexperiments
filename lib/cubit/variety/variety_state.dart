@@ -13,3 +13,18 @@ class VarietyState {
     );
   } 
 }
+
+class VarietyInitial extends VarietyState{
+  const VarietyInitial();
+}
+
+class VarietyLoading extends VarietyState{
+  const VarietyLoading();
+}
+
+class VarietySuccess extends VarietyState{
+  List<Variety> values;
+  VarietySuccess(this.values){
+    copyWith(newVarietyValues: values);
+  }
+}

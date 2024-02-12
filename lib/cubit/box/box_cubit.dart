@@ -30,4 +30,26 @@ class BoxCubit extends Cubit<BoxState>{
     }
   }
 
+  Future<void> getBoxByTitle(String boxNumber) async{
+    try{
+      emit(const BoxLoading());
+      final box = await boxRepository.fetchBox("https://protiraki.beget.app/api/box?search=$boxNumber");
+      state.copyWith(newBoxValue: box);
+      emit(BoxSuccess(box));
+    } 
+    catch(e) {
+      emit(BoxError("Проблемы с ${e.toString()}"));
+    }
+  }
+
+  Future<void> addBox(String boxNumber) async{
+    try{
+      final box = await boxRepository.addBox("https://protiraki.beget.app/api/box", Box(id: 0, boxNumber: boxNumber, currentValues: null));
+      emit(state.copyWith(newBoxValue: box));
+    } 
+    catch(e) {
+      emit(BoxError("Проблемы с ${e.toString()}"));
+    }
+  }
+
 }

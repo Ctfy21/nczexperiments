@@ -40,6 +40,22 @@ class CurrentValueSuccess extends CurrentValueState{
   int get hashCode => currentValue.hashCode;
 }
 
+class CurrentValuePostSuccess extends CurrentValueState{
+  final String message;
+  const CurrentValuePostSuccess(this.message);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is CurrentValuePostSuccess && other.message == message;
+  }
+
+  @override
+  int get hashCode => message.hashCode;
+
+}
+
 class CurrentValueError extends CurrentValueState{
   final String message;
   const CurrentValueError(this.message);

@@ -38,7 +38,7 @@ dependencies:
   flutter_bloc:
   http:
   go_router:
-  textfield_search:
+  searchfield:
 
 dev_dependencies:
   flutter_test:

@@ -5,6 +5,7 @@ import 'package:nczexperiments/cubit/current_value/current_value_repository.dart
 import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
 import 'package:nczexperiments/models/current_value.dart';
 import 'package:nczexperiments/models/experiment.dart';
+import 'package:nczexperiments/models/variety.dart';
 
 class CurrentValueCubit extends Cubit<CurrentValueState>{
   final CurrentValueRepository currentValueRepository;
@@ -47,6 +48,22 @@ class CurrentValueCubit extends Cubit<CurrentValueState>{
     catch(e){
       emit(CurrentValuesError("Проблемы с ${e.toString()}"));
     }
+  }
+
+  Future<void> postEmptyCurrentValue(int boxId, Variety variety, int sequenceBoxNumber, int experimentId) async{
+    emit(const CurrentValueInitial());
+    CurrentValue emptyValue = CurrentValue(id: null, timeCreate: null, timeUpdate: null, sequenceBoxNumber: sequenceBoxNumber, allPlants: null, livePlants: null, grownPlantsValue: null, livePlantsPercent: null, varietyId: variety, boxId: boxId, experimentId: experimentId);
+    try{
+      emit(const CurrentValueLoading());
+      await currentValueRepository.postEmptyCurrentValue("https://protiraki.beget.app/api/currentvalues", emptyValue);
+    }
+    catch(e){
+      emit(CurrentValuesError("Проблемы с ${e.toString()}"));
+    }
+  }
+
+  Future<void> currentValuePostSuccess() async{
+    emit(const CurrentValuePostSuccess('Загрузка завершена!'));
   }
 
   Future<void> returnInitialState() async{

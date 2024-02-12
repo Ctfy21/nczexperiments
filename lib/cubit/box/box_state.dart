@@ -24,7 +24,7 @@ class BoxLoading extends BoxState{
 
 class BoxSuccess extends BoxState{
   final Box box;
-  const BoxSuccess(this.box);
+  BoxSuccess(this.box);
 
   @override
   bool operator ==(Object other) {
