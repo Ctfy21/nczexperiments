@@ -48,13 +48,13 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: 'experiments',
           builder: (BuildContext context, GoRouterState state) {
-            return const ExperimentsScreen();
-          },
-        ),
-        GoRoute(
-          path: 'experimentsCreateTemplate',
-          builder: (BuildContext context, GoRouterState state) {
-            return const ExperimentsCreateTemplateScreen();
+            try{
+              String urlVal = state.extra as String;
+              return ChooseExperimentsScreen(url: urlVal);
+            }
+            catch(e){
+              return ErrorScreen(message: e.toString());
+            }
           },
         ),
         GoRoute(
@@ -127,7 +127,7 @@ class MainScreen extends StatelessWidget {
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () {
-                          context.go('/experiments');
+                          context.go('/experiments', extra: '/experimentvalues');
                         },
                         child: const Text('Посмотреть данные'),
                       ),
@@ -145,7 +145,7 @@ class MainScreen extends StatelessWidget {
                     child: Center(
                       child: ElevatedButton(
                           onPressed: () {
-                            context.go('/experimentsCreateTemplate');
+                            context.go('/experiments', extra: '/createtemplatevalue');
                           },
                           child: const Text("Внести шаблонные данные")),
                     ),
@@ -158,8 +158,9 @@ class MainScreen extends StatelessWidget {
   }
 }
 
-class ExperimentsScreen extends StatelessWidget {
-  const ExperimentsScreen({super.key});
+class ChooseExperimentsScreen extends StatelessWidget {
+  final String url;
+  const ChooseExperimentsScreen({super.key, required this.url});
 
   // This widget is the root of your application.
   @override
@@ -196,7 +197,7 @@ class ExperimentsScreen extends StatelessWidget {
                               subtitle: Text(
                                   'Время начала эксперимента - ${state.experiments[index].startTime.day}.${state.experiments[index].startTime.month}.${state.experiments[index].startTime.year}'),
                               onTap: () {
-                                context.go('/experimentvalues',
+                                context.go(url,
                                     extra: state.experiments[index]);
                               },
                             ),
@@ -340,66 +341,6 @@ class ErrorScreen extends StatelessWidget {
             )));
   }
 }
-
-class ExperimentsCreateTemplateScreen extends StatelessWidget {
-  const ExperimentsCreateTemplateScreen({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.deepPurpleAccent,
-            title: const Text("NCZ Experiments"),
-          ),
-          body: BlocProvider(
-            create: (context) => ExperimentsCubit(FetchExperimentsRepository()),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              alignment: Alignment.center,
-              child: BlocBuilder<ExperimentsCubit, ExperimentsState>(
-                builder: (context, state) {
-                  if (state is ExperimentsLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (state is ExperimentsError) {
-                    return Center(child: Text(state.message));
-                  }
-                  if (state is ExperimentsSuccess) {
-                    return ListView.builder(
-                      itemCount: state.experiments.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: Center(
-                            child: ListTile(
-                              title: Text(state.experiments[index].title,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w500)),
-                              subtitle: Text(
-                                  'Время начала эксперимента - ${state.experiments[index].startTime.day}.${state.experiments[index].startTime.month}.${state.experiments[index].startTime.year}'),
-                              onTap: () {
-                                context.go('/createtemplatevalue',
-                                    extra: state.experiments[index]);
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return const Center(
-                        child: Text(
-                            "Неизвестная ошибка, пожалуйста напишите сообщение администратору."));
-                  }
-                },
-              ),
-            ),
-          )),
-    );
-  }
-}
-
 class CreateTemplateValueScreen extends StatelessWidget {
   final Experiment experiment;
   CreateTemplateValueScreen({super.key, required this.experiment});
