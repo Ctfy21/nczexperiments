@@ -39,6 +39,7 @@ dependencies:
   http:
   go_router:
   searchfield:
+  record:
 
 dev_dependencies:
   flutter_test:

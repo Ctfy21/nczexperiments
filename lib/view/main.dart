@@ -3,7 +3,10 @@ import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
 import 'package:nczexperiments/cubit/variety/variety_cubit.dart';
 import 'package:nczexperiments/cubit/variety/variety_repository.dart';
 import 'package:nczexperiments/cubit/variety/variety_state.dart';
+import 'package:nczexperiments/func/get_wav_from_voice.dart';
+import 'package:nczexperiments/models/box.dart';
 import 'package:nczexperiments/models/variety.dart';
+import 'package:record/record.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -79,6 +82,17 @@ final GoRouter _router = GoRouter(
             }
           },
         ),
+        GoRoute(
+          path: 'selectbox',
+          builder: (BuildContext context, GoRouterState state) {
+            try {
+              Experiment experiment = state.extra! as Experiment;
+              return ChooseBoxScreen(experiment: experiment);
+            } catch (e) {
+              return ErrorScreen(message: e.toString());
+            }
+          },
+        ),
       ],
     ),
   ],
@@ -137,7 +151,9 @@ class MainScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(25.0),
                     child: Center(
                       child: ElevatedButton(
-                          onPressed: () {}, child: const Text("Внести данные")),
+                          onPressed: () {
+                             context.go('/experiments', extra: '/selectBox');
+                          }, child: const Text("Внести данные голосом")),
                     ),
                   ),
                   Padding(
@@ -488,5 +504,136 @@ class CreateTemplateValueScreen extends StatelessWidget {
         ),
       ),
     ));
+  }
+}
+
+
+class ChooseBoxScreen extends StatelessWidget {
+  final Experiment experiment;
+  const ChooseBoxScreen({super.key, required this.experiment});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.deepPurpleAccent,
+            title: const Text("NCZ Experiments"),
+          ),
+          body: BlocProvider(
+            create: (context) => BoxCubit(FetchBoxRepository()),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              alignment: Alignment.center,
+              child: BlocBuilder<BoxCubit, BoxState>(
+                builder: (contextBox, stateBox) {
+                  if (stateBox is BoxInitial) {
+                    contextBox.read<BoxCubit>().getListBoxByExperimentId(experiment.id);
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (stateBox is BoxesLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (stateBox is BoxesError) {
+                    return Center(child: Text(stateBox.message));
+                  }
+                  if (stateBox is BoxesSuccess) {
+                    return ListView.builder(
+                      itemCount: stateBox.boxes.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: Center(
+                            child: ListTile(
+                              title: Text(stateBox.boxes[index].boxNumber,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500)),
+                              onTap: () {
+                                context.go('/putVoiceData',
+                                    extra: [experiment, stateBox.boxes[index]]);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return const Center(
+                        child: Text(
+                            "Неизвестная ошибка, пожалуйста напишите сообщение администратору."));
+                  }
+                },
+              ),
+            ),
+          )),
+    );
+  }
+}
+
+
+class PutVoiceDataScreen extends StatefulWidget {
+  final Experiment experiment;
+  final Box box;
+  const PutVoiceDataScreen({super.key, required this.experiment, required this.box});
+
+  @override
+  FavoriteWidgetState createState() => FavoriteWidgetState();
+}
+
+class FavoriteWidgetState extends State<PutVoiceDataScreen>{
+  late AudioRecorder record;
+  late String data;
+  late bool isRecording;
+
+  @override
+  void initState() {
+    record = AudioRecorder();
+    data = '';
+    isRecording = false;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.deepPurpleAccent,
+            title: const Text("NCZ Experiments"),
+          ),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(data),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: isRecording ? MaterialStateProperty.all(Colors.red) : MaterialStateProperty.all(Colors.green),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0)
+                    )
+                  )
+                ),
+                onPressed:() async {
+                  if(isRecording){
+                    final path = await record.stop();
+                    print(path);
+                  }
+                  else{
+                    if (await record.hasPermission()) {
+                      await record.start(const RecordConfig(encoder: AudioEncoder.wav, noiseSuppress: true), path: 'record.wav');
+                    }
+                  }
+                  setState(() {
+                    isRecording = !isRecording;
+
+                  });
+                },
+                child: isRecording ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
+              )
+            ],
+          )
+      )
+    );
   }
 }
