@@ -1,11 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
 import 'package:nczexperiments/cubit/variety/variety_cubit.dart';
 import 'package:nczexperiments/cubit/variety/variety_repository.dart';
 import 'package:nczexperiments/cubit/variety/variety_state.dart';
-import 'package:nczexperiments/func/get_wav_from_voice.dart';
+import 'package:nczexperiments/func/wav_to_text_stt.dart';
 import 'package:nczexperiments/models/box.dart';
 import 'package:nczexperiments/models/variety.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -88,6 +91,17 @@ final GoRouter _router = GoRouter(
             try {
               Experiment experiment = state.extra! as Experiment;
               return ChooseBoxScreen(experiment: experiment);
+            } catch (e) {
+              return ErrorScreen(message: e.toString());
+            }
+          },
+        ),
+        GoRoute(
+          path: 'putvoicedata',
+          builder: (BuildContext context, GoRouterState state) {
+            try {
+              List<dynamic> list = state.extra as List<dynamic>;
+              return PutVoiceDataScreen(experiment: list[0], box: list[1]);
             } catch (e) {
               return ErrorScreen(message: e.toString());
             }
@@ -615,19 +629,22 @@ class FavoriteWidgetState extends State<PutVoiceDataScreen>{
                   )
                 ),
                 onPressed:() async {
-                  if(isRecording){
+                  setState(() {
+                    isRecording = !isRecording;
+                  });
+                  if(!isRecording){
                     final path = await record.stop();
-                    print(path);
+                    final dataNew = await wavToText("https://protiraki.beget.app/api/uploadaudio", path!);
+                    setState(() {
+                      data = dataNew;
+                    });
                   }
                   else{
                     if (await record.hasPermission()) {
-                      await record.start(const RecordConfig(encoder: AudioEncoder.wav, noiseSuppress: true), path: 'record.wav');
+                      Directory appTempDir = await getTemporaryDirectory();
+                      await record.start(const RecordConfig(encoder: AudioEncoder.wav, noiseSuppress: true), path: '${appTempDir.path}/record.wav');
                     }
                   }
-                  setState(() {
-                    isRecording = !isRecording;
-
-                  });
                 },
                 child: isRecording ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
               )
