@@ -6,6 +6,7 @@ abstract class CurrentValueRepository{
   Future<CurrentValue> fetchCurrentValue(String url);
   Future<List<CurrentValue>> fetchCurrentValuesByBoxId(String url);
   Future<String> postEmptyCurrentValue(String url, CurrentValue currentValue);
+  Future<String> putCurrentValue(String url, CurrentValue currentValue);
 }
 
 class FetchCurrentValueRepository implements CurrentValueRepository {
@@ -49,6 +50,19 @@ class FetchCurrentValueRepository implements CurrentValueRepository {
   Future<String> postEmptyCurrentValue(String url, CurrentValue currentValue) async{
     final uri = Uri.parse(url);
     final response = await http.post(uri, body: currentValue.toJsonEmptyCurrentValue());
+    if(response.statusCode <= 300){
+      return "Данные успешно отправлены!";
+    }
+    else{
+      throw NetworkException();
+    }
+  }
+
+  @override
+  Future<String> putCurrentValue(String url, CurrentValue currentValue) async{
+    final uri = Uri.parse(url);
+    final jsonVal = currentValue.toJsonPut();
+    final response = await http.put(uri, body: jsonEncode(jsonVal), headers: {'Content-Type': 'application/json'});
     if(response.statusCode <= 300){
       return "Данные успешно отправлены!";
     }

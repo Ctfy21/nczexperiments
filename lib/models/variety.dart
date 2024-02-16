@@ -30,6 +30,17 @@ class Variety{
     };
   }
 
+  Map<String, Object?> toJsonWithoutCurrentValues(){
+    return <String, Object?> {
+    'id': id,
+    'title': title,
+    'is_templated': isTemplated,
+    'relative_template_percent': relativeTemplatePercent,
+    'score': score,
+    'additional_info': additionalInfo,
+    };
+  }
+
   factory Variety.fromJsonBox(Map<String, Object?> json){
     return Variety(
         id: json['id'] as int, 

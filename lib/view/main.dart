@@ -5,6 +5,7 @@ import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
 import 'package:nczexperiments/cubit/variety/variety_cubit.dart';
 import 'package:nczexperiments/cubit/variety/variety_repository.dart';
 import 'package:nczexperiments/cubit/variety/variety_state.dart';
+import 'package:nczexperiments/func/text_to_current_value.dart';
 import 'package:nczexperiments/func/wav_to_text_stt.dart';
 import 'package:nczexperiments/models/box.dart';
 import 'package:nczexperiments/models/variety.dart';
@@ -633,16 +634,18 @@ class FavoriteWidgetState extends State<PutVoiceDataScreen>{
                     isRecording = !isRecording;
                   });
                   if(!isRecording){
-                    final path = await record.stop();
-                    final dataNew = await wavToText("https://protiraki.beget.app/api/uploadaudio", path!);
+                    // final path = await record.stop();
+                    // final dataNew = await wavToText("https://protiraki.beget.app/api/uploadaudio", path!);
+                    final resTemp = textToCurrentValue("ящик 1925 начать 10 9 8 7 6 5 4");
+                    print(await saveCurrentValuesPlantValues(resTemp, 'all_plants'));
                     setState(() {
-                      data = dataNew;
+                      // data = dataNew;
                     });
                   }
                   else{
                     if (await record.hasPermission()) {
-                      Directory appTempDir = await getTemporaryDirectory();
-                      await record.start(const RecordConfig(encoder: AudioEncoder.wav, noiseSuppress: true), path: '${appTempDir.path}/record.wav');
+                    //   Directory appTempDir = await getTemporaryDirectory();
+                    //   await record.start(const RecordConfig(encoder: AudioEncoder.wav, noiseSuppress: true), path: '${appTempDir.path}/record.wav');
                     }
                   }
                 },

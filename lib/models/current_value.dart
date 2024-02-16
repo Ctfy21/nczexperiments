@@ -4,7 +4,7 @@ class CurrentValue{
   final int? id;
   final DateTime? timeCreate;
   final DateTime? timeUpdate;
-  final int sequenceBoxNumber;
+  final int? sequenceBoxNumber;
   final int? allPlants;
   final int? livePlants;
   final int? grownPlantsValue;
@@ -36,6 +36,35 @@ class CurrentValue{
     };
   }
 
+  Map<String, Object?> toJson(){
+    return <String, Object?> {
+      'id': id,
+      'time_create': timeCreate!.toIso8601String(),
+      'time_update': timeUpdate!.toIso8601String(),
+      'all_plants': allPlants,
+      'live_plants': livePlants,
+      'grown_plants_value': grownPlantsValue,
+      'variety_id': varietyId,
+      'box_id': boxId,
+      'experiment_id' : experimentId
+    };
+  }
+
+  Map<String, Object?> toJsonPut(){
+    return <String, Object?> {
+      'id': id,
+      'time_create': timeCreate!.toIso8601String(),
+      'time_update': timeUpdate!.toIso8601String(),
+      'all_plants': allPlants,
+      'live_plants': livePlants,
+      'grown_plants_value': grownPlantsValue,
+      'variety_id': varietyId.id,
+      'box_id': boxId,
+      'experiment_id' : experimentId
+    };
+  }
+
+
   // factory CurrentValue.fromJsonCurrentValue(List<dynamic> json){
   //   return CurrentValue(
   //       id: json[0]['id'] as int,
@@ -54,14 +83,30 @@ class CurrentValue{
   factory CurrentValue.fromJsonCurrentValue(Map<String, Object?> json){
     return CurrentValue(
         id: json['id'] as int,
-        timeCreate: DateTime.parse(json['time_create'].toString()),
-        timeUpdate: DateTime.parse(json['time_update'].toString()),
-        sequenceBoxNumber: json['sequence_box_number'] as int,
+        timeCreate: DateTime.tryParse(json['time_create'].toString()),
+        timeUpdate: DateTime.tryParse(json['time_update'].toString()),
+        sequenceBoxNumber: json['sequence_box_number'] as int? ?? 0,
         allPlants: json['all_plants'] as int? ?? 0,
         livePlants: json['live_plants'] as int? ?? 0,
         grownPlantsValue: json['grown_plants_value'] as int? ?? 0,
         livePlantsPercent: json['live_plants_percent'] as double? ?? 0,
         varietyId: Variety.fromJsonBox((json['variety_id'] as Map<String, Object?>)),
+        boxId: json['box_id'] as int,
+        experimentId: json['experiment_id'] as int,
+        );
+  }
+
+  factory CurrentValue.fromCurrentValue(Map<String, Object?> json){
+    return CurrentValue(
+        id: json['id'] as int,
+        timeCreate: DateTime.tryParse(json['time_create'].toString()),
+        timeUpdate: DateTime.tryParse(json['time_update'].toString()),
+        sequenceBoxNumber: json['sequence_box_number'] as int? ?? 0,
+        allPlants: json['all_plants'] as int? ?? 0,
+        livePlants: json['live_plants'] as int? ?? 0,
+        grownPlantsValue: json['grown_plants_value'] as int? ?? 0,
+        livePlantsPercent: json['live_plants_percent'] as double? ?? 0,
+        varietyId: json['variety_id'] as Variety,
         boxId: json['box_id'] as int,
         experimentId: json['experiment_id'] as int,
         );
