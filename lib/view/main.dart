@@ -415,101 +415,107 @@ class CreateTemplateValueScreen extends StatelessWidget {
                 if (stateVariety is VarietySuccess) {
                   return Form(
                       key: _formKey,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(25.0),
-                            child: TextFormField(
-                              onSaved: (newValue) => boxNumber = newValue!,
-                              decoration: const InputDecoration(
-                              icon: Icon(Icons.check_box_outline_blank_outlined),
-                              hintText: 'Введите номер ящика'),
-                              validator: (value) {
-                                if (value!.isEmpty || value == '') {
-                                  return 'Пустой ввод!';
+                      child: SingleChildScrollView(
+                        reverse: true,
+                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(25.0),
+                              child: TextFormField(
+                                onSaved: (newValue) => boxNumber = newValue!,
+                                decoration: const InputDecoration(
+                                icon: Icon(Icons.check_box_outline_blank_outlined),
+                                hintText: 'Введите номер ящика'),
+                                validator: (value) {
+                                  if (value!.isEmpty || value == '') {
+                                    return 'Пустой ввод!';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            const Divider(),
+                            Padding(
+                              padding: const EdgeInsets.all(25.0),
+                              child: ListView.builder(
+                                primary: false,
+                                shrinkWrap: true,
+                                itemCount: experiment.maxBoxVariety,
+                                itemBuilder: (contextList, index) {
+                                  return Row(
+                                    children: [
+                                      Text("№${index + 1}"),
+                                      const VerticalDivider(),
+                                      Expanded(
+                                        child: SearchField<Variety>(
+                                        suggestions: stateVariety.values.map((e) =>
+                                          SearchFieldListItem<Variety>(e.title,
+                                              item: e,
+                                              child: Padding(
+                                                padding:const EdgeInsets.all(8.0),
+                                                child: Text(e.title))
+                                              )).toList(),
+                                        validator: (value) {
+                                          if (value!.isEmpty || value == '') {
+                                            return 'Пустой ввод!';
+                                          }
+                                          return null;
+                                        },         
+                                        onSaved: (value) => varietyTitles[index] = value!,                 
+                                      )),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                            BlocBuilder<CurrentValueCubit, CurrentValueState>(
+                              builder: (contextCurrentValue, stateCurrentValue) {
+                                if(stateCurrentValue is CurrentValueLoading){
+                                  return ElevatedButton(
+                                  onPressed: () {},
+                                  child: const Center(child: CircularProgressIndicator()),
+                                );
                                 }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const Divider(),
-                          Padding(
-                            padding: const EdgeInsets.all(25.0),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: experiment.maxBoxVariety,
-                              itemBuilder: (contextList, index) {
-                                return Row(
-                                  children: [
-                                    Text("№${index + 1}"),
-                                    const VerticalDivider(),
-                                    Expanded(
-                                      child: SearchField<Variety>(
-                                      suggestions: stateVariety.values.map((e) =>
-                                        SearchFieldListItem<Variety>(e.title,
-                                            item: e,
-                                            child: Padding(
-                                              padding:const EdgeInsets.all(8.0),
-                                              child: Text(e.title))
-                                            )).toList(),
-                                      validator: (value) {
-                                        if (value!.isEmpty || value == '') {
-                                          return 'Пустой ввод!';
+                                if(stateCurrentValue is CurrentValuePostSuccess){
+                                  return Column(
+                                    children: [
+                                      const Text('Успешно'),
+                                      const SizedBox(height: 20,),
+                                      ElevatedButton(
+                                      onPressed: () {
+                                        context.go('/');
+                                      },
+                                      child: const Text('Домой'))
+                                    ],
+                                  );
+                                }
+                                else{
+                                  return ElevatedButton(
+                                    onPressed: () async {
+                                      if (_formKey.currentState!.validate()) {
+                                        _formKey.currentState!.save();
+                                        final boxProvider = BlocProvider.of<BoxCubit>(context);
+                                        await boxProvider.addBox(boxNumber);
+                                        int boxId = 0;
+                                        boxId = boxProvider.state.boxValue!.id;
+                                        for(var value in varietyTitles){
+                                          // ignore: use_build_context_synchronously
+                                          contextCurrentValue.read<CurrentValueCubit>().postEmptyCurrentValue(boxId, stateVariety.values.firstWhere((element) => element.title == value), varietyTitles.indexOf(value) + 1, experiment.id);
                                         }
-                                        return null;
-                                      },         
-                                      onSaved: (value) => varietyTitles[index] = value!,                 
-                                    )),
-                                  ],
-                                );
+                                        // ignore: use_build_context_synchronously
+                                        contextCurrentValue.read<CurrentValueCubit>().currentValuePostSuccess();
+                                      }
+                                    },
+                                    child: const Text('Отправить'),
+                                  );
+                                }
                               },
                             ),
-                          ),
-                          BlocBuilder<CurrentValueCubit, CurrentValueState>(
-                            builder: (contextCurrentValue, stateCurrentValue) {
-                              if(stateCurrentValue is CurrentValueLoading){
-                                return ElevatedButton(
-                                onPressed: () {},
-                                child: const Center(child: CircularProgressIndicator()),
-                              );
-                              }
-                              if(stateCurrentValue is CurrentValuePostSuccess){
-                                return Column(
-                                  children: [
-                                    const Text('Успешно'),
-                                    const SizedBox(height: 20,),
-                                    ElevatedButton(
-                                    onPressed: () {
-                                      context.go('/');
-                                    },
-                                    child: const Text('Домой'))
-                                  ],
-                                );
-                              }
-                              else{
-                                return ElevatedButton(
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      _formKey.currentState!.save();
-                                      final boxProvider = BlocProvider.of<BoxCubit>(context);
-                                      await boxProvider.addBox(boxNumber);
-                                      int boxId = 0;
-                                      boxId = boxProvider.state.boxValue!.id;
-                                      for(var value in varietyTitles){
-                                        // ignore: use_build_context_synchronously
-                                        contextCurrentValue.read<CurrentValueCubit>().postEmptyCurrentValue(boxId, stateVariety.values.firstWhere((element) => element.title == value), varietyTitles.indexOf(value) + 1, experiment.id);
-                                      }
-                                      // ignore: use_build_context_synchronously
-                                      contextCurrentValue.read<CurrentValueCubit>().currentValuePostSuccess();
-                                    }
-                                  },
-                                  child: const Text('Отправить'),
-                                );
-                              }
-                            },
-                          )
-                        ],
-                      ));
+                          ],
+                        ),
+                      )
+                      );
                 } else {
                   return const Text('Variety: error');
                 }
@@ -634,18 +640,18 @@ class FavoriteWidgetState extends State<PutVoiceDataScreen>{
                     isRecording = !isRecording;
                   });
                   if(!isRecording){
-                    // final path = await record.stop();
-                    // final dataNew = await wavToText("https://protiraki.beget.app/api/uploadaudio", path!);
-                    final resTemp = textToCurrentValue("ящик 1925 начать 10 9 8 7 6 5 4");
+                    final path = await record.stop();
+                    final dataNew = await wavToText("https://protiraki.beget.app/api/uploadaudio", path!);
+                    final resTemp = textToCurrentValue(dataNew);
                     print(await saveCurrentValuesPlantValues(resTemp, 'all_plants'));
                     setState(() {
-                      // data = dataNew;
+                      data = dataNew;
                     });
                   }
                   else{
                     if (await record.hasPermission()) {
-                    //   Directory appTempDir = await getTemporaryDirectory();
-                    //   await record.start(const RecordConfig(encoder: AudioEncoder.wav, noiseSuppress: true), path: '${appTempDir.path}/record.wav');
+                      Directory appTempDir = await getTemporaryDirectory();
+                      await record.start(const RecordConfig(encoder: AudioEncoder.wav, noiseSuppress: true), path: '${appTempDir.path}/record.wav');
                     }
                   }
                 },
@@ -653,6 +659,50 @@ class FavoriteWidgetState extends State<PutVoiceDataScreen>{
               )
             ],
           )
+      )
+    );
+  }
+}
+
+class NewMainPage extends StatelessWidget {
+  const NewMainPage({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.deepPurpleAccent,
+            title: const Text("Ввод данных"),
+            leading: const Icon(Icons.no_backpack_rounded),
+            actions: const [
+              Icon(Icons.search)
+            ],
+            bottom: const TabBar(
+              tabs: [
+                Tab(
+                  child: Column(
+                    children: [
+                      Text('Все растения'),
+                      Expanded(
+                        child: Divider(color: Color(0x003fa727),)
+                      ),
+                      Text('Живые растения', style: TextStyle(color: Color(0x00818c99)),),
+                    ],
+                  )
+                  )
+              ],
+            ),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.)
+              )
+            ],
+          ),
+          body:
       )
     );
   }

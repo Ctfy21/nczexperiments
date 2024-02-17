@@ -30,6 +30,13 @@ List<int> textToCurrentValue(String text) {
     }
     else if(progress == 3 && value.isNotEmpty && int.tryParse(value) != null){
       currentValuesPlants.add(int.parse(value));
+      progress = 4;
+    }
+    else if(progress == 4 && value.isNotEmpty && value.toLowerCase().contains('дальше')){
+      progress = 3;
+    }
+    else if(progress == 3 && value.isNotEmpty && value.toLowerCase().contains('конец')){
+      progress = 0;
     }
   }
   return currentValuesPlants;
@@ -47,6 +54,7 @@ Future<String> saveCurrentValuesPlantValues(List<int> values, String field) asyn
     json[field] = values[i];
     try{
       FetchCurrentValueRepository().putCurrentValue("https://protiraki.beget.app/api/currentvaluesdetail/${currentValues[i].id.toString()}", CurrentValue.fromCurrentValue(json));
+      
     }
     catch(e){
       return e.toString();
