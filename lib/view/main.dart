@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nczexperiments/cubit/current_value/current_value_state.dart';
 import 'package:nczexperiments/cubit/variety/variety_cubit.dart';
 import 'package:nczexperiments/cubit/variety/variety_repository.dart';
@@ -49,7 +50,7 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return const MainScreen();
+        return const NewMainPage();
       },
       routes: <RouteBase>[
         GoRoute(
@@ -119,6 +120,95 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      theme: ThemeData(
+        useMaterial3: true,
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Color.fromRGBO(63, 167, 39, 1),
+          selectedLabelStyle: TextStyle(
+              fontSize: 10,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.w400,
+              color: Color.fromRGBO(63, 167, 39, 1)
+            ),
+          unselectedLabelStyle: TextStyle(
+              fontSize: 10,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.w400,
+              color: Color.fromRGBO(153, 162, 173, 1)
+            ),
+          unselectedItemColor: Color.fromRGBO(153, 162, 173, 1),
+          selectedIconTheme: IconThemeData(size: 24),
+          unselectedIconTheme: IconThemeData(size: 24),
+        ),
+        
+        tabBarTheme: TabBarTheme(
+          unselectedLabelColor: const Color.fromRGBO(129, 140, 153, 1),
+          labelColor: const Color.fromRGBO(74, 74, 74, 1),
+          labelStyle: Theme.of(context).textTheme.titleMedium,
+          unselectedLabelStyle: Theme.of(context).textTheme.titleLarge,
+          dividerColor: Colors.white,
+          indicatorColor: const Color.fromRGBO(63, 167, 39, 1),
+        ),
+        iconTheme: const IconThemeData(
+          color: Color.fromRGBO(63, 167, 39, 1)
+        ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(0, 255, 255, 255),
+          brightness: Brightness.light
+        ),
+        textTheme: TextTheme(
+          displayLarge: GoogleFonts.openSans(
+            textStyle: const TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+              color: Color.fromRGBO(74, 74, 74, 1)
+            )
+          ),
+          titleLarge: GoogleFonts.openSans( 
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.w400
+            ),
+          ),
+          titleMedium: GoogleFonts.openSans(
+            textStyle: const TextStyle(
+              fontSize: 14,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.w400
+            ),
+          ),
+          titleSmall: GoogleFonts.openSans(
+            textStyle: const TextStyle(
+              fontSize: 10,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.w600
+            ),
+          ),
+          bodyLarge: GoogleFonts.openSans(
+            textStyle: const TextStyle(
+              fontSize: 14,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.w800
+            ), 
+          ),
+          bodyMedium: GoogleFonts.openSans(
+            textStyle: const TextStyle(
+              fontSize: 12,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.w400
+            ),
+          ),
+          bodySmall: GoogleFonts.openSans(
+            textStyle: const TextStyle(
+              fontSize: 10,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.w400
+            ),
+          )
+        )
+      ),
       routerConfig: _router,
     );
   }
@@ -643,7 +733,7 @@ class FavoriteWidgetState extends State<PutVoiceDataScreen>{
                     final path = await record.stop();
                     final dataNew = await wavToText("https://protiraki.beget.app/api/uploadaudio", path!);
                     final resTemp = textToCurrentValue(dataNew);
-                    print(await saveCurrentValuesPlantValues(resTemp, 'all_plants'));
+                    await saveCurrentValuesPlantValues(resTemp, 'all_plants');
                     setState(() {
                       data = dataNew;
                     });
@@ -671,39 +761,80 @@ class NewMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.deepPurpleAccent,
-            title: const Text("Ввод данных"),
-            leading: const Icon(Icons.no_backpack_rounded),
-            actions: const [
-              Icon(Icons.search)
-            ],
-            bottom: const TabBar(
-              tabs: [
-                Tab(
-                  child: Column(
-                    children: [
-                      Text('Все растения'),
-                      Expanded(
-                        child: Divider(color: Color(0x003fa727),)
-                      ),
-                      Text('Живые растения', style: TextStyle(color: Color(0x00818c99)),),
-                    ],
-                  )
-                  )
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+            appBar: const MainAppBar(),
+            bottomNavigationBar: BottomNavigationBar(
+              selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+              selectedLabelStyle: Theme.of(context).bottomNavigationBarTheme.selectedLabelStyle,
+              unselectedLabelStyle: Theme.of(context).bottomNavigationBarTheme.unselectedLabelStyle,
+              unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+              selectedIconTheme: Theme.of(context).bottomNavigationBarTheme.selectedIconTheme,
+              unselectedIconTheme: Theme.of(context).bottomNavigationBarTheme.unselectedIconTheme,
+              items:  [
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.file_upload_rounded),
+                  label: 'Ввод'
+                ),
+                BottomNavigationBarItem(
+                  icon: ShaderMask(
+                    shaderCallback: (bounds) => 
+                    const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color.fromRGBO(153, 162, 173, 1), Color.fromRGBO(153, 162, 173, 0)]).createShader(bounds),
+                    child: const CircleAvatar(backgroundColor: Color.fromRGBO(153, 162, 173, 1), child: Icon(Icons.mic, color: Colors.white,),),
+                  ),
+                  label: 'Запись'
+                ),
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.edit_document, size: 24),
+                  label: 'Эксперемент'
+                ),
               ],
             ),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.)
-              )
-            ],
-          ),
-          body:
+            body: const Padding(
+              padding: EdgeInsets.all(12.0),
+              child: TabBarView(
+                children: [
+                  Text('1'),
+                  Text('2'),
+                ],
+              ),
+            )
+        ),
       )
     );
   }
+}
+
+
+
+class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const MainAppBar({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      title: Text("Ввод данных", style: Theme.of(context).textTheme.displayLarge),
+      centerTitle: true,
+      leading: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).iconTheme.color,),
+      actions: [
+        Icon(Icons.search, color: Theme.of(context).iconTheme.color)
+      ],
+      bottom: TabBar(
+        unselectedLabelColor: Theme.of(context).tabBarTheme.unselectedLabelColor,
+        unselectedLabelStyle: Theme.of(context).tabBarTheme.unselectedLabelStyle,
+        labelStyle: Theme.of(context).tabBarTheme.labelStyle,
+        labelColor: Theme.of(context).tabBarTheme.labelColor,
+        indicatorColor: Theme.of(context).tabBarTheme.indicatorColor,
+        
+        tabs: const [
+          Tab(child: Center(child: Text('Все растения')),),
+          Tab(child: Center(child: Text('Живые растения')),),
+        ],
+      ),
+    );
+  }
+  
+  @override
+  Size get preferredSize => const Size.fromHeight(kTextTabBarHeight + kToolbarHeight);
 }
