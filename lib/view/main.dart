@@ -223,7 +223,7 @@ class MainScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.deepPurpleAccent,
+            // backgroundColor: Colors.deepPurpleAccent,
             title: const Text("NCZ Experiments"),
           ),
           body: Column(
@@ -289,7 +289,6 @@ class ChooseExperimentsScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.deepPurpleAccent,
             title: const Text("NCZ Experiments"),
           ),
           body: BlocProvider(
@@ -349,7 +348,6 @@ class ExperimentValuesScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.deepPurpleAccent,
             title: const Text("NCZ Experiments"),
           ),
           body: MultiBlocProvider(
@@ -394,32 +392,46 @@ class ExperimentValuesScreen extends StatelessWidget {
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
                                       return DataTable(
+                                        columnSpacing: 17,
                                           columns: const [
-                                            DataColumn(label: Text('Название')),
                                             DataColumn(
-                                                label: Text('Всего раст.')),
+                                                label: Center(child: Flexible(child: Text('Название')))),
                                             DataColumn(
-                                                label: Text('Живые раст.')),
-                                            DataColumn(label: Text('% живых'))
+                                                label: Center(child: Flexible(child: Text('Всего')))),
+                                            DataColumn(
+                                                label: Center(child: Flexible(child: Text('Живые')))),
+                                            // DataColumn(label: Text('% живых'))
                                           ],
                                           rows: snapshot.data
                                                   ?.map((currentValue) =>
                                                       DataRow(cells: [
-                                                        DataCell(Text(
-                                                            currentValue
-                                                                .varietyId
-                                                                .title)),
-                                                        DataCell(Text(
-                                                            currentValue
-                                                                .allPlants
-                                                                .toString())),
-                                                        DataCell(Text(
-                                                            currentValue
-                                                                .livePlants
-                                                                .toString())),
-                                                        DataCell(Text(currentValue
-                                                            .livePlantsPercent
-                                                            .toString())),
+                                                        DataCell(Center(
+                                                          child: Flexible(
+                                                            child: Text(
+                                                                currentValue
+                                                                    .varietyId
+                                                                    .title),
+                                                          ),
+                                                        )),
+                                                        DataCell(Center(
+                                                          child: Flexible(
+                                                            child: Text(
+                                                                currentValue
+                                                                    .allPlants
+                                                                    .toString()),
+                                                          ),
+                                                        )),
+                                                        DataCell(Center(
+                                                          child: Flexible(
+                                                            child: Text(
+                                                                currentValue
+                                                                    .livePlants
+                                                                    .toString()),
+                                                          ),
+                                                        )),
+                                                        // DataCell(Text(currentValue
+                                                        //     .livePlantsPercent
+                                                        //     .toString())),
                                                       ]))
                                                   .toList() ??
                                               []);
@@ -454,7 +466,6 @@ class ErrorScreen extends StatelessWidget {
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
-              backgroundColor: Colors.deepPurpleAccent,
               title: const Text("NCZ Experiments"),
             ),
             body: Center(
@@ -476,7 +487,6 @@ class CreateTemplateValueScreen extends StatelessWidget {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurpleAccent,
         title: const Text("NCZ Experiments"),
       ),
       body: MultiBlocProvider(
@@ -629,7 +639,6 @@ class ChooseBoxScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.deepPurpleAccent,
             title: const Text("NCZ Experiments"),
           ),
           body: BlocProvider(
@@ -709,7 +718,6 @@ class FavoriteWidgetState extends State<PutVoiceDataScreen>{
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.deepPurpleAccent,
             title: const Text("NCZ Experiments"),
           ),
           body: Column(
@@ -795,7 +803,7 @@ class NewMainPage extends StatelessWidget {
               padding: EdgeInsets.all(12.0),
               child: TabBarView(
                 children: [
-                  Text('1'),
+                  ExperimentValuesNewScreen(experiment: ),
                   Text('2'),
                 ],
               ),
@@ -837,4 +845,118 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   
   @override
   Size get preferredSize => const Size.fromHeight(kTextTabBarHeight + kToolbarHeight);
+}
+
+
+
+class ExperimentValuesNewScreen extends StatelessWidget {
+  final Experiment experiment;
+  const ExperimentValuesNewScreen({super.key, required this.experiment});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                    create: (context) => BoxCubit(FetchBoxRepository())),
+                BlocProvider(
+                    create: (context) =>
+                        CurrentValueCubit(FetchCurrentValueRepository())),
+              ],
+              child: BlocBuilder<BoxCubit, BoxState>(
+                builder: (contextBoxes, stateBoxes) {
+                  if (stateBoxes is BoxInitial) {
+                    contextBoxes
+                        .read<BoxCubit>()
+                        .getListBoxByExperimentId(experiment.id);
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (stateBoxes is BoxesLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (stateBoxes is BoxesError) {
+                    return Center(child: Text(stateBoxes.message));
+                  }
+                  if (stateBoxes is BoxesSuccess) {
+                    return ListView.builder(
+                      itemCount: stateBoxes.boxes.length,
+                      itemBuilder: (contextList, indexBox) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(50, 10, 50, 0),
+                          child: Card(
+                            child: Column(
+                              children: [
+                                Text(
+                                  '№${stateBoxes.boxes[indexBox].boxNumber}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                FutureBuilder(
+                                  future: getCurrentValuesFromBoxId(
+                                      stateBoxes.boxes[indexBox].id),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      return DataTable(
+                                        columnSpacing: 17,
+                                          columns: const [
+                                            DataColumn(
+                                                label: Center(child: Flexible(child: Text('Название')))),
+                                            DataColumn(
+                                                label: Center(child: Flexible(child: Text('Всего')))),
+                                            DataColumn(
+                                                label: Center(child: Flexible(child: Text('Живые')))),
+                                            // DataColumn(label: Text('% живых'))
+                                          ],
+                                          rows: snapshot.data
+                                                  ?.map((currentValue) =>
+                                                      DataRow(cells: [
+                                                        DataCell(Center(
+                                                          child: Flexible(
+                                                            child: Text(
+                                                                currentValue
+                                                                    .varietyId
+                                                                    .title),
+                                                          ),
+                                                        )),
+                                                        DataCell(Center(
+                                                          child: Flexible(
+                                                            child: Text(
+                                                                currentValue
+                                                                    .allPlants
+                                                                    .toString()),
+                                                          ),
+                                                        )),
+                                                        DataCell(Center(
+                                                          child: Flexible(
+                                                            child: Text(
+                                                                currentValue
+                                                                    .livePlants
+                                                                    .toString()),
+                                                          ),
+                                                        )),
+                                                        // DataCell(Text(currentValue
+                                                        //     .livePlantsPercent
+                                                        //     .toString())),
+                                                      ]))
+                                                  .toList() ??
+                                              []);
+                                    } else {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return const Center(child: Text("ExperimentBoxes: Error"));
+                  }
+                },
+              ));
+  }
 }

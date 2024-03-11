@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 abstract class ExperimentsRepository{
   Future<List<Experiment>> fetchExperiments(String url);
+  Future<Experiment> fetchExperimentById(String url);
   // Future<List<CurrentValue>> fetchCurrentValuesFromExperiment(Experiment experiment);
 }
 
@@ -27,6 +28,19 @@ class FetchExperimentsRepository implements ExperimentsRepository {
     }
   }
 
+  @override
+  Future<Experiment> fetchExperimentById(String url) async{
+    final uri = Uri.parse(url);
+    final response = await http.get(uri);
+    if (response.statusCode == 200){
+      final json = jsonDecode(response.body);
+      Experiment experiment = Experiment.fromJsonExperiment(json);      
+      return experiment;
+    }
+    else{
+      throw NetworkException();
+    }
+  }
 
 }
 
